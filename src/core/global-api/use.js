@@ -2,7 +2,7 @@
 
 import { toArray } from '../util/index'
 
-export function initUse (Vue: GlobalAPI) {
+export function initUse(Vue: GlobalAPI) {
   Vue.use = function (plugin: Function | Object) {
     const installedPlugins = (this._installedPlugins || (this._installedPlugins = []))
     if (installedPlugins.indexOf(plugin) > -1) {
@@ -10,7 +10,9 @@ export function initUse (Vue: GlobalAPI) {
     }
 
     // additional parameters
+    // 把数组中第一个元素(plugin)去除
     const args = toArray(arguments, 1)
+    // 把this（vue）插入到数组中第一个位置
     args.unshift(this)
     if (typeof plugin.install === 'function') {
       plugin.install.apply(plugin, args)

@@ -13,15 +13,18 @@ const idToTemplate = cached(id => {
   const el = query(id)
   return el && el.innerHTML
 })
-
+// 保留 Vue 实例的 $mount 方法
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
   el?: string | Element,
+  // 非 ssr 情况下为 false， ssr 时为 ture
   hydrating?: boolean
 ): Component {
+  // 获取 el 对象 
   el = el && query(el)
 
   /* istanbul ignore if */
+  // el 不能是 body 或者是 html
   if (el === document.body || el === document.documentElement) {
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
@@ -31,6 +34,7 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
+  // 把 template 转换成 render 函数
   if (!options.render) {
     let template = options.template
     if (template) {
@@ -79,6 +83,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // 调用 mount 方法 渲染 DOM
   return mount.call(this, el, hydrating)
 }
 
@@ -86,7 +91,7 @@ Vue.prototype.$mount = function (
  * Get outerHTML of elements, taking care
  * of SVG elements in IE as well.
  */
-function getOuterHTML (el: Element): string {
+function getOuterHTML(el: Element): string {
   if (el.outerHTML) {
     return el.outerHTML
   } else {
