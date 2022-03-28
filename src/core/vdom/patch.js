@@ -32,7 +32,7 @@ export const emptyNode = new VNode('', {}, [])
 
 const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
 
-function sameVnode (a, b) {
+function sameVnode(a, b) {
   return (
     a.key === b.key &&
     a.asyncFactory === b.asyncFactory && (
@@ -49,7 +49,7 @@ function sameVnode (a, b) {
   )
 }
 
-function sameInputType (a, b) {
+function sameInputType(a, b) {
   if (a.tag !== 'input') return true
   let i
   const typeA = isDef(i = a.data) && isDef(i = i.attrs) && i.type
@@ -57,7 +57,7 @@ function sameInputType (a, b) {
   return typeA === typeB || isTextInputType(typeA) && isTextInputType(typeB)
 }
 
-function createKeyToOldIdx (children, beginIdx, endIdx) {
+function createKeyToOldIdx(children, beginIdx, endIdx) {
   let i, key
   const map = {}
   for (i = beginIdx; i <= endIdx; ++i) {
@@ -67,27 +67,30 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   return map
 }
 
-export function createPatchFunction (backend) {
+export function createPatchFunction(backend) {
   let i, j
   const cbs = {}
-
+  // modules 节点的属性/事件/样式的操作
+  // nodeOps 节点操作
   const { modules, nodeOps } = backend
 
   for (i = 0; i < hooks.length; ++i) {
+    // cbs['update'] = []
     cbs[hooks[i]] = []
     for (j = 0; j < modules.length; ++j) {
       if (isDef(modules[j][hooks[i]])) {
+        // cbs['update'] = [updareAttrs, updateClass, update...]
         cbs[hooks[i]].push(modules[j][hooks[i]])
       }
     }
   }
 
-  function emptyNodeAt (elm) {
+  function emptyNodeAt(elm) {
     return new VNode(nodeOps.tagName(elm).toLowerCase(), {}, [], undefined, elm)
   }
 
-  function createRmCb (childElm, listeners) {
-    function remove () {
+  function createRmCb(childElm, listeners) {
+    function remove() {
       if (--remove.listeners === 0) {
         removeNode(childElm)
       }
@@ -96,7 +99,7 @@ export function createPatchFunction (backend) {
     return remove
   }
 
-  function removeNode (el) {
+  function removeNode(el) {
     const parent = nodeOps.parentNode(el)
     // element may have already been removed due to v-html / v-text
     if (isDef(parent)) {
@@ -104,7 +107,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function isUnknownElement (vnode, inVPre) {
+  function isUnknownElement(vnode, inVPre) {
     return (
       !inVPre &&
       !vnode.ns &&
@@ -122,7 +125,7 @@ export function createPatchFunction (backend) {
 
   let creatingElmInVPre = 0
 
-  function createElm (
+  function createElm(
     vnode,
     insertedVnodeQueue,
     parentElm,
@@ -207,7 +210,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
+  function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
@@ -229,7 +232,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function initComponent (vnode, insertedVnodeQueue) {
+  function initComponent(vnode, insertedVnodeQueue) {
     if (isDef(vnode.data.pendingInsert)) {
       insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
       vnode.data.pendingInsert = null
@@ -247,7 +250,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function reactivateComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
+  function reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
     let i
     // hack for #4339: a reactivated component with inner transition
     // does not trigger because the inner node's created hooks are not called
@@ -269,7 +272,7 @@ export function createPatchFunction (backend) {
     insert(parentElm, vnode.elm, refElm)
   }
 
-  function insert (parent, elm, ref) {
+  function insert(parent, elm, ref) {
     if (isDef(parent)) {
       if (isDef(ref)) {
         if (nodeOps.parentNode(ref) === parent) {
@@ -281,7 +284,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function createChildren (vnode, children, insertedVnodeQueue) {
+  function createChildren(vnode, children, insertedVnodeQueue) {
     if (Array.isArray(children)) {
       if (process.env.NODE_ENV !== 'production') {
         checkDuplicateKeys(children)
@@ -294,14 +297,14 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function isPatchable (vnode) {
+  function isPatchable(vnode) {
     while (vnode.componentInstance) {
       vnode = vnode.componentInstance._vnode
     }
     return isDef(vnode.tag)
   }
 
-  function invokeCreateHooks (vnode, insertedVnodeQueue) {
+  function invokeCreateHooks(vnode, insertedVnodeQueue) {
     for (let i = 0; i < cbs.create.length; ++i) {
       cbs.create[i](emptyNode, vnode)
     }
@@ -315,7 +318,7 @@ export function createPatchFunction (backend) {
   // set scope id attribute for scoped CSS.
   // this is implemented as a special case to avoid the overhead
   // of going through the normal attribute patching process.
-  function setScope (vnode) {
+  function setScope(vnode) {
     let i
     if (isDef(i = vnode.fnScopeId)) {
       nodeOps.setStyleScope(vnode.elm, i)
@@ -338,13 +341,13 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function addVnodes (parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
+  function addVnodes(parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
     for (; startIdx <= endIdx; ++startIdx) {
       createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm, false, vnodes, startIdx)
     }
   }
 
-  function invokeDestroyHook (vnode) {
+  function invokeDestroyHook(vnode) {
     let i, j
     const data = vnode.data
     if (isDef(data)) {
@@ -358,7 +361,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function removeVnodes (vnodes, startIdx, endIdx) {
+  function removeVnodes(vnodes, startIdx, endIdx) {
     for (; startIdx <= endIdx; ++startIdx) {
       const ch = vnodes[startIdx]
       if (isDef(ch)) {
@@ -372,7 +375,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function removeAndInvokeRemoveHook (vnode, rm) {
+  function removeAndInvokeRemoveHook(vnode, rm) {
     if (isDef(rm) || isDef(vnode.data)) {
       let i
       const listeners = cbs.remove.length + 1
@@ -401,7 +404,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
+  function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
     let oldStartIdx = 0
     let newStartIdx = 0
     let oldEndIdx = oldCh.length - 1
@@ -473,7 +476,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function checkDuplicateKeys (children) {
+  function checkDuplicateKeys(children) {
     const seenKeys = {}
     for (let i = 0; i < children.length; i++) {
       const vnode = children[i]
@@ -491,14 +494,14 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function findIdxInOld (node, oldCh, start, end) {
+  function findIdxInOld(node, oldCh, start, end) {
     for (let i = start; i < end; i++) {
       const c = oldCh[i]
       if (isDef(c) && sameVnode(node, c)) return i
     }
   }
 
-  function patchVnode (
+  function patchVnode(
     oldVnode,
     vnode,
     insertedVnodeQueue,
@@ -573,7 +576,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function invokeInsertHook (vnode, queue, initial) {
+  function invokeInsertHook(vnode, queue, initial) {
     // delay insert hooks for component root nodes, invoke them after the
     // element is really inserted
     if (isTrue(initial) && isDef(vnode.parent)) {
@@ -593,7 +596,7 @@ export function createPatchFunction (backend) {
   const isRenderedModule = makeMap('attrs,class,staticClass,staticStyle,key')
 
   // Note: this is a browser-only function so we can assume elms are DOM nodes.
-  function hydrate (elm, vnode, insertedVnodeQueue, inVPre) {
+  function hydrate(elm, vnode, insertedVnodeQueue, inVPre) {
     let i
     const { tag, data, children } = vnode
     inVPre = inVPre || (data && data.pre)
@@ -686,7 +689,7 @@ export function createPatchFunction (backend) {
     return true
   }
 
-  function assertNodeMatch (node, vnode, inVPre) {
+  function assertNodeMatch(node, vnode, inVPre) {
     if (isDef(vnode.tag)) {
       return vnode.tag.indexOf('vue-component') === 0 || (
         !isUnknownElement(vnode, inVPre) &&
@@ -696,26 +699,37 @@ export function createPatchFunction (backend) {
       return node.nodeType === (vnode.isComment ? 8 : 3)
     }
   }
-
-  return function patch (oldVnode, vnode, hydrating, removeOnly) {
+  // 函数柯里化，让一个函数返回一个函数
+  // createPatchFunction({nodeOps,modules}) 传入平台相关的两个参数
+  // core 中的 createPatchFunction(backend),const {modules,nodeOps} = backend
+  // core 中方法和平台无关，传入两个参数后，可以在上面的函数中使用这两个参数
+  return function patch(oldVnode, vnode, hydrating, removeOnly) {
+    // 新的 VNode 不存在
     if (isUndef(vnode)) {
+      // 老的 VNode 存在， 执行 Destroy 钩子函数
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
     }
 
     let isInitialPatch = false
     const insertedVnodeQueue = []
-
+    // 老的 VNode 不存在
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true
+      // 创建新的 VNode
       createElm(vnode, insertedVnodeQueue)
     } else {
+      // 新的和老的 VNode 都存在，更新
       const isRealElement = isDef(oldVnode.nodeType)
+      // 判断参数1是否是真实 DOM， 不是真实 DOM
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        // 更新操作， diff 算法
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
+        // 第一个参数是真实 DOM， 创建  VNode
+        // 初始化
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
@@ -748,6 +762,7 @@ export function createPatchFunction (backend) {
         const parentElm = nodeOps.parentNode(oldElm)
 
         // create new node
+        // 创建 DOM 节点
         createElm(
           vnode,
           insertedVnodeQueue,
